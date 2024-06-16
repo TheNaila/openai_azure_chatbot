@@ -19,7 +19,7 @@ def connect_mongoDB(max_retries = 0):
         return connect_mongoDB(max_retries)
     return client
 
-def create_product_collection(_client):
+def create_collections(_client):
     db = _client["projects-development"]
     product_raw_data = "https://cosmosdbcosmicworks.blob.core.windows.net/cosmic-works-small/product.json"
     '''
@@ -132,7 +132,9 @@ def add_collection_content_vector_field(collection_name: str, db):
     if not os.path.exists(json_file_name):
         with open(json_file_name, 'w') as json_file:
             json.dump(documents_vector_dict, json_file, indent=4)
-
+'''
+By finding similar info from the database, you are able to add more context to your query based on the info you want to get back
+'''
 def vector_search(collection_name, query, num_results=3):
     """
     Perform a vector search on the specified collection by vectorizing
@@ -181,13 +183,13 @@ If you are asked a question that is not in the list, respond with "I don't know.
 List of products:
 """
 
-
 def rag_with_vector_search(question: str, num_results: int = 3):
     """
     Use the RAG model to generate a prompt using vector search results based on the
     incoming question.  
     """
     # perform the vector search and build product list
+    #TODO: So if i pass the chatgpt a file, does it store it and do a vector search matching my prompt to content in the file?
     results = vector_search("products", question, num_results=num_results)
     product_list = ""
     for result in results:
@@ -205,11 +207,37 @@ def rag_with_vector_search(question: str, num_results: int = 3):
     ]
 
     completion = ai_client.chat.completions.create(messages=messages, model="gpt-35-turbo-16k")
-    return completion.choices[0].message.content
+    return completion.choices[0].message.content 
 
+'''
+Possible structure of the response from chatGPT 
+
+{
+  "id": "cmpl-6aL7mQ7YkO7R8L7pQ7X7kX7lX7V7l",
+  "object": "chat.completion",
+  "created": 1624392000,
+  "model": "gpt-35-turbo-16k",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "The capital of France is Paris."
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 5,
+    "completion_tokens": 7,
+    "total_tokens": 12
+  }
+}
+
+'''
 
 client = connect_mongoDB()
-create_product_collection(client)
+create_collections(client)
 db = client["projects-development"]
 add_collection_content_vector_field("products", db)
 add_collection_content_vector_field("customers", db)
@@ -217,7 +245,6 @@ add_collection_content_vector_field("sales", db)
 
 
 # Create the products vector index
-#TODO: Better understand
 db.command({
   'createIndexes': 'products',
   'indexes': [
@@ -274,10 +301,15 @@ db.command({
   ]
 })
 
+'''
+Additional content for the chatGPT model based on info from the database that match the given query. No LLM 
+'''
 query = "What bikes do you have?"
 results = vector_search("products", query, num_results=4)
 for result in results:
     print_product_search_result(result)   
-
+'''
+chatGPT uses its learning of human language (LLM) to give a natural response
+'''
 print(rag_with_vector_search("What bikes do you have?", 5))
 

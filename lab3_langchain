@@ -10,7 +10,7 @@ with open('env.json', 'r') as f:
     env_file = json.load(f)
 
 embedding_model = AzureOpenAIEmbeddings(
-    openai_api_version = env_file["api_version"],
+    openai_api_version = env_file["API_VERSION"],
     azure_endpoint = env_file["AOAI_ENDPOINT"],
     openai_api_key = env_file["AOAI_KEY"],   
     azure_deployment = "text-embedding-ada-002",
@@ -18,7 +18,7 @@ embedding_model = AzureOpenAIEmbeddings(
 )
 
 vector_store = AzureCosmosDBVectorSearch.from_connection_string(
-    connection_string = env_file["connectionString"],
+    connection_string = env_file["CONNECTION_STRING"],
     namespace = "projects-development.products",
     embedding = embedding_model,
     index_name = "VectorSearchIndex",    
@@ -27,4 +27,6 @@ vector_store = AzureCosmosDBVectorSearch.from_connection_string(
 )
 
 query = "What yellow products are there?"
-vector_store.similarity_search(query, k=3)
+results = vector_store.similarity_search(query, k=3)
+for result in results:
+    print(result)
