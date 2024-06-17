@@ -3,22 +3,27 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     const fileInput = document.getElementById('fileInput')
-    const queryBar = document.getElementById("queryBar")
+    const filesBar = document.getElementById("filesBar")
+    const container = document.getElementById("container")
     
     // Update file info
     const fileInfoArr = document.createElement("div")
     fileInfoArr.style.width = "100%"
-
+    fileInfoArr.style.display = "flex"
+    fileInfoArr.style.flexDirection = "row"
+    
 
     function updateFileInfo(files) {
         if (files.length > 0) {
-            if(!queryBar.contains(fileInfoArr)){
-                queryBar.insertBefore(fileInfoArr, queryBar.firstChild)
+            if(!filesBar.contains(fileInfoArr)){
+                filesBar.insertBefore(fileInfoArr, filesBar.firstChild)
             }
             const fileInfo = document.createElement("div")
             fileInfo.innerHTML = files[0].name
+            fileInfo.style.flexGrow = "1"
 
-            queryBar.style.flexWrap = "wrap"
+            container.style.flexWrap = "wrap"
+            filesBar.style.width = "100%"
             fileInfoArr.appendChild(fileInfo)
         }
     }
