@@ -1,0 +1,40 @@
+body{
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    position: relative;
+    height: 100vh;
+    margin: 0;
+}
+
+.files-bar{
+    align-content: center;
+}
+
+.files-bar input[type="file"] {
+    display: none;
+}
+
+.files-bar label {
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.query-bar {
+    flex-grow: 2;
+    display: flex;
+    flex-direction: row;
+}
+
+.query-bar input[type="text"] {
+    flex-grow: 2;
+    margin-right: 10px;
+    border: none;
+    outline: none;
+}
+
+.query-bar button {
+    white-space: nowrap;
+} 
+
+
