@@ -5,7 +5,6 @@ from create_db import MongoDB_Connect
 from uvicorn import Config, Server
 from app import app, RequestModel
 from multiprocessing import Process
-
 '''
 Create an a class that will compute embeddings (database will be connected in app file,  will need langchain openai emebedding ), add vectors to db , and create vectorsearch with langchain class
 '''
@@ -29,6 +28,7 @@ def run_server():
     server = Server(config)
     server.run()
 
+@pytest.mark.asyncio
 @pytest.fixture(scope="module", autouse=True)
 def start_server():
     proc = Process(target=run_server)
@@ -49,11 +49,13 @@ def test_add_collection_to_db(start_server):
     condition = session_key in db_client.db.list_collection_names()
     assert not condition
 
-def test_generate_all_embeddings_for_collection(start_server):
+@pytest.mark.asyncio
+async def test_generate_all_embeddings_for_collection(start_server):
 
     db_client = MongoDB_Connect()
+    await db_client.initialize()
     session_key = "test"
-    db_client.db.drop_collection(session_key)
+    await db_client.db.drop_collection(session_key)
     test_docs = [{
 
         "id": "123", 
@@ -71,16 +73,16 @@ def test_generate_all_embeddings_for_collection(start_server):
     ]
 
     for doc in test_docs:
-        db_client.db[session_key].insert_one({"_id": doc["id"]}, doc)
+        await db_client.db[session_key].insert_one({"_id": doc["id"]}, doc)
 
     ai_client = CreateModels()
-    ai_client.add_collection_content_vector_field(db_client, session_key)
+    await ai_client.add_collection_content_vector_field(db_client, session_key)
 
-    res = db_client.db[session_key].find_one({"_id": "123"})
+    res = await db_client.db[session_key].find_one({"_id": "123"})
 
     assert res is not None
-    db_client.db.drop_collection(session_key)
-    condition = session_key in db_client.db.list_collection_names()
+    await db_client.db.drop_collection(session_key)
+    condition = session_key in await db_client.db.list_collection_names()
     assert not condition
 
     file_name = session_key + "_collection_w_vectors.json"

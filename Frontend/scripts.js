@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const key = isValidURL(queryInput.value) ? "contentFile" : "query"
         const payload = {
-            sessionKey: sessionKey,
+            sessionKey: "lxm4b17k-6g22115e4x2m3u5w1d482pl4t3l5z4g",   //CHANGE
             [key]: queryInput.value
         }
         fetch('http://localhost:8000', {

@@ -16,8 +16,10 @@ from typing import List
 from langchain.agents import Tool
 from langchain.agents.agent_toolkits import create_conversational_retrieval_agent
 from langchain_core.messages import SystemMessage
+import threading
+import asyncio
 
-
+lock = asyncio.Lock()
 app = FastAPI()
 
 origins = [
@@ -67,53 +69,63 @@ def root():
     return {"status": "ready"}
 
 @app.post("/")
-def root(request: RequestModel):
-
+async def root(request: RequestModel):
     response_string = []
 
-    if request.session_key not in agent_pool:
-        agent_pool[request.session_key] = {}
-    
-    agent_obj = agent_pool[request.session_key]
-
-    retriever = None
-    if request.content_file != None:
-        db_obj = MongoDB_Connect()
-        db_obj.delete_collection(request.session_key) #TODO: REMOVE TO DO RAG
-        db_obj.create_collection(request.content_file, request.session_key)
-        agent_obj["content_file_added"] = "true"
-        ai_client = CreateModels()
-        ai_client.add_collection_content_vector_field(db_obj, request.session_key)
-        retriever = ai_client.create_vector_store_retriever(request.session_key)
-        return agent_obj
-      
-    if request.system_prompt != None:
-        agent_obj["system_prompt_added"] = request.system_prompt
-        response_string.append("added system prompt")
-
-    #####not triggered
-    if request.query != None and "content_file_added" in agent_obj:
-        retriever_chain = retriever | format_docs
-
-        tools = [
-            Tool(
-                name = "vector_search", 
-                func = retriever_chain.invoke,
-                description = "Searches Cosmic Works product information for similar products based on the question. Returns the product information in JSON format."
-            )
-        ]
-
-
-        prompt = None
-        if "system_prompt_added" in agent_pool:
-            prompt =  SystemMessage(content = agent_obj["system_prompt_added"])
+    async with lock:
+        if request.session_key not in agent_pool:
+            agent_pool[request.session_key] = {}
         
-        agent_executor = create_conversational_retrieval_agent(ai_client.openai_llm, tools, system_message = prompt, verbose=True)
-        result = agent_executor({"input": request.query})
-        return result
-    
-    if request.query != None and not "content_file_added" in agent_obj:
-        return agent_obj
+        agent_obj = agent_pool[request.session_key]
+        response_string.append("added session key")
+
+    async with lock:
+        retriever = None
+        if request.content_file != None:
+            db_obj = MongoDB_Connect()
+            await db_obj.initialize()
+            await db_obj.delete_collection(request.session_key) #TODO: REMOVE TO DO RAG
+            await db_obj.create_collection(request.content_file, request.session_key)
+               #
+            ai_client = CreateModels()
+            await ai_client.add_collection_content_vector_field(db_obj, request.session_key)
+            agent_obj["ai_client"] = ai_client 
+            retriever = await ai_client.create_vector_store_retriever(request.session_key)
+            retriever_chain = retriever | format_docs
+
+            tools = [
+                Tool(
+                    name = "vector_search", 
+                    func = retriever_chain.invoke,
+                    description = "Searches Cosmic Works product information for similar products based on the question. Returns the product information in JSON format."
+                )
+            ]
+            agent_obj["tools"] = tools
+            agent_obj["content_file_added"] = "true"
+            response_string.append("exiting lock")
+            return response_string
+
+    async with lock:
+        if request.system_prompt !=None:
+            prompt =  SystemMessage(content = agent_obj["system_prompt_added"])
+            agent_obj["system_prompt_added"] = prompt
+            response_string.append("recieved prompt")
+            return response_string
+        
+    async with lock:
+        if "content_file_added" in agent_obj and request.query != None and "ai_client" in agent_obj:
+            ai_client = agent_obj["ai_client"]
+            tools = agent_obj["tools"]
+            prompt = None
+            if "system_prompt_added" in agent_obj:
+                prompt = agent_obj["system_prompt_added"]
+            agent_executor = create_conversational_retrieval_agent(ai_client.openai_llm, tools, system_message = prompt, verbose=True)
+            result = agent_executor({"input": request.query})
+            return result
+       
+    async with lock:
+        if request.query != None and not "content_file_added" in agent_obj:
+            return {"status": "Please provide a file for content"}
 
 @app.get("/proxy")
 async def proxy_get(url: str):

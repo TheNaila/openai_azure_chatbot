@@ -4,6 +4,7 @@ from tenacity import retry, wait_random_exponential, stop_after_attempt
 import json, time, os
 from pymongo import UpdateOne
 from langchain_community.vectorstores import AzureCosmosDBVectorSearch 
+import asyncio
 
 
 class CreateModels():
@@ -34,7 +35,7 @@ class CreateModels():
         time.sleep(0.5) # rest period to avoid rate limiting on AOAI
         return response
     
-    def add_collection_content_vector_field(self, client, collection_name: str):
+    async def add_collection_content_vector_field(self, client, collection_name: str):
     
         documents_vector_dict = {}
         dict_obj = {}
@@ -46,7 +47,7 @@ class CreateModels():
 
         collection = client.db[collection_name]
         bulk_operations = []
-        documents = list(collection.find({}))
+        documents =  await collection.find({}).to_list(length = None)
 
         for doc in documents:
 
@@ -55,6 +56,7 @@ class CreateModels():
 
             if "contentVector" in doc:
                 del doc["contentVector"]
+                print("adding")
 
             if len(dict_obj) != 0:
                 content_vector = dict_obj[doc["_id"]]
@@ -69,12 +71,12 @@ class CreateModels():
                 upsert=True
             ))
 
-        collection.bulk_write(bulk_operations)
+        await collection.bulk_write(bulk_operations)
         if not os.path.exists(json_file_name):
             with open(json_file_name, 'w') as json_file:
                 json.dump(documents_vector_dict, json_file, indent=4)
     
-    def create_vector_store_retriever(self, collection_name: str, top_k: int = 3):
+    async def create_vector_store_retriever(self, collection_name: str, top_k: int = 3):
         vector_store = AzureCosmosDBVectorSearch.from_connection_string(
             connection_string = connection_string,
             namespace = f"projects-development.{collection_name}",
@@ -83,5 +85,5 @@ class CreateModels():
             embedding_key = "contentVector",
             text_key = "_id"
         )
-        vector_store.create_index()
+        vector_store.create_index() #use afrom_docs 
         return vector_store.as_retriever(search_kwargs={"score_threshold" : .76})

@@ -3,6 +3,9 @@ from pymongo import MongoClient, UpdateOne, DeleteMany
 from pydantic import BaseModel, RootModel, create_model
 import requests, uuid
 from typing import Any, Dict, Type, List
+import asyncio
+from motor.motor_asyncio import AsyncIOMotorClient
+import httpx
 
 #TODO: Can the keys not be strinf? is so use map to create a func that turns them to strings
 def create_dynamic_model(name, data: Dict[str, Any]) -> Type[BaseModel]:
@@ -52,8 +55,12 @@ def check_val_id(obj):
     return obj
 
 class MongoDB_Connect():
-    def __init__(self) -> None:
-        env_file = []
+    def __init__(self):
+        self.load_env()
+        self.client = None
+        self.db = None
+
+    def load_env(self):
         with open('env.json', 'r') as f:
             env_file = json.load(f)
 
@@ -61,33 +68,34 @@ class MongoDB_Connect():
         self.api_key_val = env_file["AOAI_KEY"]
         self.api_version_val = env_file["API_VERSION"]
         self.connection_string = env_file["CONNECTION_STRING"]
-
-        self.connect_mongoDB()
-        self.db = self.client["projects-development"]
    
-    def connect_mongoDB(self, max_retries = 0):
-        if max_retries == 3:
-            return 
+    async def connect_mongoDB(self, max_retries=0):
+        if max_retries >= 3:
+            raise ConnectionError("Max retries reached, could not connect to MongoDB")
+
         try:
-            self.client = MongoClient(self.connection_string)
-        except: 
-            print("couldn't connect")
-            max_retries = max_retries + 1
-            return self.connect_mongoDB(max_retries)
-        return 
+            self.client = AsyncIOMotorClient(self.connection_string)
+            self.db = self.client["projects-development"]
+        except Exception as e:
+            print(f"Connection failed: {e}")
+            await asyncio.sleep(1)  # Adding a delay before retrying
+            await self.connect_mongoDB(max_retries + 1)
+
+    async def initialize(self):
+        await self.connect_mongoDB()
     
-    def delete_collection(self, collection_name):
+    async def delete_collection(self, collection_name):
         self.db[collection_name].bulk_write([DeleteMany({})])
     
-    def create_collection(self, content_file, session_key: str):
-        response = requests.get("http://localhost:8000/proxy", params={"url": content_file})
-        #check if database exists, if so add additional component to session_key/allow multiple databses per session and for multiple people
-        response.encoding = 'utf-8-sig'
-        collection_data = [data for data in json.loads(response.text)]
+    async def create_collection(self, content_file, session_key: str):
+        async with httpx.AsyncClient() as client:
+            response = await client.get("http://localhost:8000/proxy", params={"url": content_file})
+            response.encoding = 'utf-8-sig'
+            collection_data = json.loads(response.text)
         models = generate_models(collection_data)
         results = [callback_func(data, retrieve_model(data, models)) for data in collection_data]
         val_ids = [check_val_id(obj) for obj in results]
-        self.db[session_key].bulk_write([UpdateOne({"_id": obj.id}, {"$set": obj.model_dump(by_alias=True)}, upsert=True) for obj in val_ids])
+        await self.db[session_key].bulk_write([UpdateOne({"_id": obj.id}, {"$set": obj.model_dump(by_alias=True)}, upsert=True) for obj in val_ids])
 
     #TODO: Create function that handles if passed in files pdf or word
     
