@@ -3,7 +3,7 @@ import numpy as np
 from ai_client import CreateModels
 from create_db import MongoDB_Connect
 from uvicorn import Config, Server
-from app import app, RequestModel
+from app import app
 from multiprocessing import Process
 '''
 Create an a class that will compute embeddings (database will be connected in app file,  will need langchain openai emebedding ), add vectors to db , and create vectorsearch with langchain class

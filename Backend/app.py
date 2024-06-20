@@ -1,6 +1,9 @@
 """
 API entrypoint for backend API.
 """
+import httpx
+import json
+import asyncio
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -8,16 +11,11 @@ from typing import Optional
 from create_db import MongoDB_Connect
 from fastapi.responses import JSONResponse
 from ai_client import CreateModels
-import httpx
-
-import json 
 from langchain.schema.document import Document
 from typing import List
 from langchain.agents import Tool
 from langchain.agents.agent_toolkits import create_conversational_retrieval_agent
 from langchain_core.messages import SystemMessage
-import threading
-import asyncio
 
 lock = asyncio.Lock()
 app = FastAPI()
@@ -82,6 +80,7 @@ async def root(request: RequestModel):
     async with lock:
         retriever = None
         if request.content_file != None:
+            #should check if url
             db_obj = MongoDB_Connect()
             await db_obj.initialize()
             await db_obj.delete_collection(request.session_key) #TODO: REMOVE TO DO RAG
@@ -107,10 +106,9 @@ async def root(request: RequestModel):
 
     async with lock:
         if request.system_prompt !=None:
-            prompt =  SystemMessage(content = agent_obj["system_prompt_added"])
+            prompt =  SystemMessage(content = request.system_prompt)
             agent_obj["system_prompt_added"] = prompt
             response_string.append("recieved prompt")
-            # return response_string
         
     async with lock:
         if request.query != None:

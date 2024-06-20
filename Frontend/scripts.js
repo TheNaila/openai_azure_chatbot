@@ -35,6 +35,18 @@ function isValidURL(string) {
     }
 }
 
+function removeSystemPrompt(str) {
+    // Create a regular expression to match "system prompt:" case-insensitively
+    const regex = /system prompt:/gi;
+    
+    // Replace the matched phrase with an empty string
+    return str.replace(regex, "").trim();
+}
+
+function includesAny(str, substrings) {
+    return substrings.some(substring => str.includes(substring));
+}
+
 /*
 Create session key, store and send to backend with the text submitted through the form 
 perform the POST request when button clicked 
@@ -48,12 +60,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
    
     submitButton.addEventListener("click", (e) => {
-
+        const containsPrompt = queryInput.value.toString().toLowerCase()
+        
         const key = isValidURL(queryInput.value) ? "contentFile" : "query"
         const payload = {
-            sessionKey: "lxmqwc6k-4lx2t621dc4a2j6l4h3c11334i103o", //generateUniqueSession(),   //CHANGE
-            [key]: queryInput.value
+            sessionKey: "lxmr3pku-702y2se2s1s704v54c2a59135pn4d" //generateUniqueSession(),   //CHANGE
         }
+        //make more comprehensive
+        if (includesAny(containsPrompt, ["system prompt:", "system prompt :", " system prompt:", "systemprompt:"])){
+            res = removeSystemPrompt(queryInput.value)
+            payload["systemPrompt"] = res
+        }else{
+            payload[key] = queryInput.value
+        }
+        //send warning that theres no prompt
         fetch('http://localhost:8000', {
             method: 'POST',
             headers: {
