@@ -47,6 +47,32 @@ function includesAny(str, substrings) {
     return substrings.some(substring => str.includes(substring));
 }
 
+
+function parseOutput(arg, convContainer){
+    // encapsulate css in css class
+    const outputMessageContainer = document.createElement("div")
+    outputMessageContainer.style.display = 'flex'
+    outputMessageContainer.style.justifyContent = "flex-start"
+    outputMessageContainer.style.minHeight = "min-content"
+
+    const outputMessage = document.createElement("div")
+    outputMessage.style.minWidth = "min-content"
+    outputMessage.style.borderRadius = "20px"
+    outputMessage.style.padding = "10px"
+    outputMessage.style.margin = "10px"
+    outputMessage.style.backgroundColor = "#87CEEB"
+    
+    if("output" in arg){
+        outputMessage.innerText = arg["output"]
+        outputMessageContainer.appendChild(outputMessage)
+        convContainer.appendChild(outputMessageContainer)
+    }else if ("status" in arg){
+        outputMessage.innerText = arg["status"]
+        outputMessageContainer.appendChild(outputMessage)
+        convContainer.appendChild(outputMessageContainer)
+    }
+}
+
 /*
 Create session key, store and send to backend with the text submitted through the form 
 perform the POST request when button clicked 
@@ -55,11 +81,11 @@ On the frontend store the the recieved messages
 */
 
 
-
 document.addEventListener('DOMContentLoaded', function() {
     const submitButton = document.getElementById("queryButton")
     const queryInput = document.getElementById("queryInput")
 
+    //make content scrollable
     const convContainer = document.getElementById("convContainer")
     convContainer.style.padding = "10px"
 
@@ -86,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
             message.style.borderRadius = "20px"
             message.style.padding = "10px"
             message.style.margin = "10px"
-            message.style.backgroundColor = "grey"
+            message.style.backgroundColor = "#D3D3D3"
             message.innerText = res
             sentMessageContainer.appendChild(message)
             convContainer.appendChild(sentMessageContainer)
@@ -103,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
             message.style.borderRadius = "20px"
             message.style.padding = "10px"
             message.style.margin = "10px"
-            message.style.backgroundColor = "grey"
+            message.style.backgroundColor = "#D3D3D3"
             message.innerHTML = queryInput.value
             sentMessageContainer.appendChild(message)
             convContainer.appendChild(sentMessageContainer)
@@ -117,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
             body: JSON.stringify(payload)
         })
         .then(response => response.json())
-        .then(data => console.log(data))
+        .then(data => console.log(parseOutput(data, convContainer)))
         .catch(error => console.error('Error:', error));
 
         queryInput.value = ""

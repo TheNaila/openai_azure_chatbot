@@ -85,7 +85,7 @@ async def root(request: RequestModel):
             await db_obj.initialize()
             await db_obj.delete_collection(request.session_key) #TODO: REMOVE TO DO RAG
             await db_obj.create_collection(request.content_file, request.session_key)
-               #
+            
             ai_client = CreateModels()
             await ai_client.add_collection_content_vector_field(db_obj, request.session_key)
             agent_obj["ai_client"] = ai_client 

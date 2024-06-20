@@ -4,8 +4,6 @@ from tenacity import retry, wait_random_exponential, stop_after_attempt
 import json, time, os
 from pymongo import UpdateOne
 from langchain_community.vectorstores import AzureCosmosDBVectorSearch 
-import asyncio
-
 
 class CreateModels():
     def __init__(self):
