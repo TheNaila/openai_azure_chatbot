@@ -54,9 +54,14 @@ On the backend, store all the incoming information and send it back/print it
 On the frontend store the the recieved messages
 */
 
+
+
 document.addEventListener('DOMContentLoaded', function() {
     const submitButton = document.getElementById("queryButton")
     const queryInput = document.getElementById("queryInput")
+
+    const convContainer = document.getElementById("convContainer")
+    convContainer.style.padding = "10px"
 
    
     submitButton.addEventListener("click", (e) => {
@@ -70,8 +75,38 @@ document.addEventListener('DOMContentLoaded', function() {
         if (includesAny(containsPrompt, ["system prompt:", "system prompt :", " system prompt:", "systemprompt:"])){
             res = removeSystemPrompt(queryInput.value)
             payload["systemPrompt"] = res
+
+            const sentMessageContainer = document.createElement("div")
+            sentMessageContainer.style.display = 'flex'
+            sentMessageContainer.style.justifyContent = "flex-end"
+            sentMessageContainer.style.minHeight = "min-content"
+
+            const message = document.createElement("div")
+            message.style.minWidth = "min-content"
+            message.style.borderRadius = "20px"
+            message.style.padding = "10px"
+            message.style.margin = "10px"
+            message.style.backgroundColor = "grey"
+            message.innerText = res
+            sentMessageContainer.appendChild(message)
+            convContainer.appendChild(sentMessageContainer)
         }else{
             payload[key] = queryInput.value
+            
+            const sentMessageContainer = document.createElement("div")
+            sentMessageContainer.style.display = 'flex'
+            sentMessageContainer.style.justifyContent = "flex-end"
+            sentMessageContainer.style.minHeight = "min-content"
+
+            const message = document.createElement("div")
+            message.style.minWidth = "min-content"
+            message.style.borderRadius = "20px"
+            message.style.padding = "10px"
+            message.style.margin = "10px"
+            message.style.backgroundColor = "grey"
+            message.innerHTML = queryInput.value
+            sentMessageContainer.appendChild(message)
+            convContainer.appendChild(sentMessageContainer)
         }
         //send warning that theres no prompt
         fetch('http://localhost:8000', {

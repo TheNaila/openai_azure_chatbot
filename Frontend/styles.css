@@ -7,6 +7,11 @@ body{
     margin: 0;
 }
 
+.container {
+    position: absolute;
+    bottom: 10px;
+}
+
 .files-bar{
     align-content: center;
 }
@@ -37,4 +42,14 @@ body{
     white-space: nowrap;
 } 
 
+.conv-window {
+    background-color: blueviolet;
+    position: absolute; 
+    flex-grow: 2;
+    top: 10px;
+    margin-bottom: 10px;
+    width: 60%;
+    bottom: 60px;
+}
 
+/* prevent overlaps */
