@@ -103,24 +103,28 @@ async def root(request: RequestModel):
             agent_obj["tools"] = tools
             agent_obj["content_file_added"] = "true"
             response_string.append("exiting lock")
-            return response_string
+            # return response_string
 
     async with lock:
         if request.system_prompt !=None:
             prompt =  SystemMessage(content = agent_obj["system_prompt_added"])
             agent_obj["system_prompt_added"] = prompt
             response_string.append("recieved prompt")
-            return response_string
+            # return response_string
         
     async with lock:
-        if "content_file_added" in agent_obj and request.query != None and "ai_client" in agent_obj:
+        if request.query != None:
+            agent_obj["query"] = request.query
+    async with lock:
+        if "content_file_added" in agent_obj and "query" in agent_obj and "ai_client" in agent_obj:
             ai_client = agent_obj["ai_client"]
             tools = agent_obj["tools"]
+            query = agent_obj["query"]
             prompt = None
             if "system_prompt_added" in agent_obj:
                 prompt = agent_obj["system_prompt_added"]
             agent_executor = create_conversational_retrieval_agent(ai_client.openai_llm, tools, system_message = prompt, verbose=True)
-            result = agent_executor({"input": request.query})
+            result = agent_executor({"input": query})
             return result
        
     async with lock:

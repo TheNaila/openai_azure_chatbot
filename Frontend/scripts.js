@@ -46,12 +46,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitButton = document.getElementById("queryButton")
     const queryInput = document.getElementById("queryInput")
 
-
+   
     submitButton.addEventListener("click", (e) => {
 
         const key = isValidURL(queryInput.value) ? "contentFile" : "query"
         const payload = {
-            sessionKey: "lxm4b17k-6g22115e4x2m3u5w1d482pl4t3l5z4g",   //CHANGE
+            sessionKey: "lxmqwc6k-4lx2t621dc4a2j6l4h3c11334i103o", //generateUniqueSession(),   //CHANGE
             [key]: queryInput.value
         }
         fetch('http://localhost:8000', {
