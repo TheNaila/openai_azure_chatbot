@@ -6,7 +6,6 @@ Implemented a conversational AI chatbot using Azure OpenAI API `text-embedding-a
 #### Technical Features
 
 Azure Cosmos DB with a Vector Search Index for Retrieval-Augmented Generation
-python's langchain libray
 
 Pydantic library's `create_model()` to create desearalize JSON data with multiple object structures
 
