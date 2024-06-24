@@ -33,11 +33,6 @@ embedding_model = AzureOpenAIEmbeddings(
     chunk_size=10
 )
 
-<<<<<<< HEAD
-# print(embedding_model.embed_query("test"))
-
-=======
->>>>>>> origin/main
 vector_store = AzureCosmosDBVectorSearch.from_connection_string(
     connection_string = env_file["CONNECTION_STRING"],
     namespace = "projects-development.products",

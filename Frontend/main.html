@@ -11,12 +11,14 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
 </head>
-<body>
-    <div class = "conv-window scrollable" id = "convContainer">
+<body style="background-color: #023047;">
+
+    <img src = "chat.ai.png">
+    <div class = "container conv-window scrollable" id = "convContainer">
     </div>
     <div class="container" id = "container" style = " max-width: 60%; display: flex; min-width: min-content"> 
         <div class="files-bar" id = "filesBar">
-            <label for="fileInput" id = "fileSelector"><i class="fas fa-paperclip"></i></label>
+            <!-- <label for="fileInput" id = "fileSelector"><i class="fas fa-paperclip"></i></label> -->
             <input type="file" class="form-control" id="fileInput">
         </div>
         <div class ="query-bar" id = "queryBar">
@@ -24,5 +26,6 @@
             <button type="button" class="btn btn-primary" id="queryButton">Submit</button>
         </div>  
     </div>
+   
 
 </body>

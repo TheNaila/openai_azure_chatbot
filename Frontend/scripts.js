@@ -60,7 +60,7 @@ function parseOutput(arg, convContainer){
     outputMessage.style.borderRadius = "20px"
     outputMessage.style.padding = "10px"
     outputMessage.style.margin = "10px"
-    outputMessage.style.backgroundColor = "#87CEEB"
+    outputMessage.style.backgroundColor = "#FB8500"
     
     if("output" in arg){
         outputMessage.innerText = arg["output"]
@@ -95,8 +95,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const key = isValidURL(queryInput.value) ? "contentFile" : "query"
         const payload = {
-            sessionKey: "lxmr3pku-702y2se2s1s704v54c2a59135pn4d" //generateUniqueSession(),   //CHANGE
+            sessionKey: "lxt6md89-phase2" //generateUniqueSession(),   //CHANGE
         }
+        //lxt6md89-phase2
         //make more comprehensive
         if (includesAny(containsPrompt, ["system prompt:", "system prompt :", " system prompt:", "systemprompt:"])){
             res = removeSystemPrompt(queryInput.value)
@@ -112,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
             message.style.borderRadius = "20px"
             message.style.padding = "10px"
             message.style.margin = "10px"
-            message.style.backgroundColor = "#D3D3D3"
+            message.style.backgroundColor = "#219EBC"
             message.innerText = res
             sentMessageContainer.appendChild(message)
             convContainer.appendChild(sentMessageContainer)
@@ -129,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
             message.style.borderRadius = "20px"
             message.style.padding = "10px"
             message.style.margin = "10px"
-            message.style.backgroundColor = "#D3D3D3"
+            message.style.backgroundColor = "#219EBC"
             message.innerHTML = queryInput.value
             sentMessageContainer.appendChild(message)
             convContainer.appendChild(sentMessageContainer)
