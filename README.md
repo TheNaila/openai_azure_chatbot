@@ -18,6 +18,9 @@ Welcome to Chat.AI! A conversational AI chatbot built using Azure OpenAI API `te
 
 ### Frameworks and Libraries
 
+#### HTML/CSS, JavaScript, DOM Manipulation
+
+
 `Fetch API` : Used to make HTTP POST requests to a server
 
 `Date API` : Used to generate a unique timestamp for unique session key
@@ -26,7 +29,6 @@ Welcome to Chat.AI! A conversational AI chatbot built using Azure OpenAI API `te
 
 `URL API` : Used to validate URL strings
 
-**DOM Manipulation**
 
 ## Backend 
 
