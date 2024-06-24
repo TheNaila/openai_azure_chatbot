@@ -16,6 +16,10 @@ Programmed test cases with `pytest` library
 https://github.com/TheNaila/azure_openai/assets/63077056/ebb1439e-aba8-4efc-9da8-2727cba992fa
 
 
+https://github.com/TheNaila/azure_openai/assets/63077056/b89b88e9-46aa-481b-8b60-7ea116fba424
+
+
+
 
 
 
