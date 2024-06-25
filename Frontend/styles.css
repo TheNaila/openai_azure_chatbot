@@ -18,6 +18,9 @@ img {
 #container {
     position: absolute;
     bottom: 10px;
+    width: "min-content";
+    height: "min-content";
+    background-color: #8ecae6;
 }
 
 .files-bar{
@@ -57,7 +60,7 @@ img {
     top: 70px;
     margin-bottom: 10px;
     width: 60%;
-    bottom: 60px;
+    bottom: 90px;
     background-color: #8ECAE6;
 }
 
