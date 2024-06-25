@@ -125,7 +125,7 @@ class MongoDB_Connect():
             #     json_objs.append(toJsonString)
             # text_data = json.dumps(json_objs)
             # collection_data = json.loads(text_data)
-        collection_data = [collection_data]
+        # collection_data = [collection_data]
         models = generate_models(collection_data)
         results = [callback_func(data, retrieve_model(data, models)) for data in collection_data]
         val_ids = [check_val_id(obj) for obj in results]
