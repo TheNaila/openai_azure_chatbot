@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const key = isValidURL(queryInput.value) ? "contentFile" : "query"
         const payload = {
-            sessionKey: payloadSessionKey,   
+            sessionKey: "lxubrq4o-3r2i2r6a6z",   
         }
         
         if (includesAny(containsPrompt, ["system prompt:", "system prompt :", " system prompt:", "systemprompt:"])){

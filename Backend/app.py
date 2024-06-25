@@ -122,16 +122,14 @@ async def root(request: RequestModel):
             if "system_prompt_added" in agent_obj:
                 prompt = agent_obj["system_prompt_added"]
             
-            #return {"prompt": prompt, "query": query, "tools" : tools}
             agent_executor = create_conversational_retrieval_agent(ai_client.openai_llm, tools, system_message = prompt, verbose=True)
             result = agent_executor({"input": query})
             return result
        
-    # async with lock:
-    #     if request.query != None and not "content_file_added" in agent_obj:
-    #         # return {"status": "Please provide a file for content"}
+    async with lock:
+        if request.query != None and not "content_file_added" in agent_obj:
+            return {"status": "Please provide a file for content"}
 
-    return response_string
 
 @app.get("/proxy")
 async def proxy_get(url: str):
