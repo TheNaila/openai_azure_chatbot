@@ -187,7 +187,8 @@ document.addEventListener('DOMContentLoaded', function() {
             message.innerText = res
             sentMessageContainer.appendChild(message)
             convContainer.appendChild(sentMessageContainer)
-        }else{
+            
+        }else if(queryInput.value != ""){
             payload[key] = queryInput.value
             
             const sentMessageContainer = document.createElement("div")
@@ -205,9 +206,23 @@ document.addEventListener('DOMContentLoaded', function() {
             sentMessageContainer.appendChild(message)
             convContainer.appendChild(sentMessageContainer)
         }
-        
         if(fileAdded) {
             payload["contentFile"] = uploadedFile["content"][0]
+
+            const sentMessageContainer = document.createElement("div")
+            sentMessageContainer.style.display = 'flex'
+            sentMessageContainer.style.justifyContent = "flex-end"
+            sentMessageContainer.style.minHeight = "min-content"
+
+            const message = document.createElement("div")
+            message.style.minWidth = "min-content"
+            message.style.borderRadius = "20px"
+            message.style.padding = "10px"
+            message.style.margin = "10px"
+            message.style.backgroundColor = "#219EBC"
+            message.innerText = fileInput.files[0].name
+            sentMessageContainer.appendChild(message)
+            convContainer.appendChild(sentMessageContainer)
         }
         console.log(payload)
         //else alert remove URL
@@ -228,6 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const filesBar = document.getElementById("filesBar")
             const fileInfoArr = document.getElementById("fileInfoArr")
             filesBar.removeChild(fileInfoArr)
+            filesBar.style.width = "min-content"
             fileAdded = false
         }
     })
