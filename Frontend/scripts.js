@@ -73,6 +73,73 @@ function parseOutput(arg, convContainer){
     }
 }
 
+async function updateFileInfo(files) {
+    const filesBar = document.getElementById("filesBar")
+    const container = document.getElementById("container")
+    
+    // Update file info
+    const fileInfoArr = document.createElement("div")
+    fileInfoArr.style.width = "100%"
+    fileInfoArr.style.display = "flex"
+    fileInfoArr.style.flexDirection = "row"
+    
+    var file_result = ''
+
+    if (files.length > 0 && fileInfoArr.children.length < 1) {
+        if(!filesBar.contains(fileInfoArr)){
+            filesBar.insertBefore(fileInfoArr, filesBar.firstChild)
+        }
+        const fileInfo = document.createElement("div")
+        fileInfo.innerHTML = files[0].name
+        fileInfo.style.flexGrow = "1"
+
+        container.style.flexWrap = "wrap"
+        filesBar.style.width = "100%"
+        fileInfoArr.appendChild(fileInfo)
+
+        file_result = files[0].name
+
+        if(file_result.toString().includes(".pdf")) {
+            
+            const arrayBuffer = await files[0].arrayBuffer();
+            const uint8Array = new Uint8Array(arrayBuffer);
+
+            const pdf = await pdfjsLib.getDocument({ data: uint8Array }).promise;
+            
+
+            const pdfText = [];
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const textItems = textContent.items.map(item => item.str).join(' ');
+                pdfText.push(textItems);
+            }
+
+            const jsonOutput = JSON.stringify({ content: pdfText }, null, 2);
+
+            console.log(jsonOutput)
+
+
+        }else{
+
+        const reader = new FileReader();
+            reader.onload = function() {
+                file_result = reader.result;
+                console.log(file_result)
+            };
+            reader.readAsText(files[0]);
+        }
+
+        
+        
+
+    }
+    else if(fileInfoArr.children.length == 1){
+        alert("You've reached file limit")
+    }
+}
+
 /*
 Create session key, store and send to backend with the text submitted through the form 
 perform the POST request when button clicked 
@@ -85,11 +152,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitButton = document.getElementById("queryButton")
     const queryInput = document.getElementById("queryInput")
 
-    //make content scrollable
+    
     const convContainer = document.getElementById("convContainer")
     convContainer.style.padding = "10px"
 
-   
+    const fileInput = document.getElementById('fileInput')
+    
+    fileInput.addEventListener('change', async (e) => {
+        await updateFileInfo(e.target.files);
+    });
+
     submitButton.addEventListener("click", (e) => {
         const containsPrompt = queryInput.value.toString().toLowerCase()
         
@@ -98,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
             sessionKey: "lxt6md89-phase2" //generateUniqueSession(),   //CHANGE
         }
         //lxt6md89-phase2
-        //make more comprehensive
+        
         if (includesAny(containsPrompt, ["system prompt:", "system prompt :", " system prompt:", "systemprompt:"])){
             res = removeSystemPrompt(queryInput.value)
             payload["systemPrompt"] = res
@@ -152,51 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
     })
 })
 
-// document.addEventListener('DOMContentLoaded', function() {
 
-//     const fileInput = document.getElementById('fileInput')
-//     const filesBar = document.getElementById("filesBar")
-//     const container = document.getElementById("container")
-    
-//     // Update file info
-//     const fileInfoArr = document.createElement("div")
-//     fileInfoArr.style.width = "100%"
-//     fileInfoArr.style.display = "flex"
-//     fileInfoArr.style.flexDirection = "row"
-    
-//     var file_result = ''
 
-//     function updateFileInfo(files) {
-//         if (files.length > 0 && fileInfoArr.children.length < 2) {
-//             if(!filesBar.contains(fileInfoArr)){
-//                 filesBar.insertBefore(fileInfoArr, filesBar.firstChild)
-//             }
-//             const fileInfo = document.createElement("div")
-//             fileInfo.innerHTML = files[0].name
-//             fileInfo.style.flexGrow = "1"
 
-//             container.style.flexWrap = "wrap"
-//             filesBar.style.width = "100%"
-//             fileInfoArr.appendChild(fileInfo)
 
-//             file_result = files[0].name
-
-//             const reader = new FileReader();
-//                 reader.onload = function() {
-//                     file_result = reader.result;
-//                     console.log(file_result)
-//                 };
-//                 reader.readAsText(files[0]);
-
-//         }
-//         else if(fileInfoArr.children.length == 2){
-//             alert("You've reached file limit")
-//         }
-//     }
-
-//     fileInput.addEventListener('change', (e) => {
-//         updateFileInfo(e.target.files);
-//     });
-
-//     console.log(file_result)
-// })
