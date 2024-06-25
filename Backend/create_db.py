@@ -20,11 +20,16 @@ def get_model_name(index: int) -> str:
 def generate_models(collection_data):
     #find all unique objects
     unique_structures = {}
-    for data in collection_data:
-        set_of_keys = frozenset(data.keys())
-        if set_of_keys not in unique_structures:
-            unique_structures[set_of_keys] = data
+   
 
+    if len(collection_data) > 1:
+        for data in collection_data:
+            set_of_keys = frozenset(data.keys())
+            if set_of_keys not in unique_structures:
+                unique_structures[set_of_keys] = data
+    else:
+        set_of_keys = frozenset(collection_data[0].keys())
+        unique_structures[set_of_keys] = collection_data[0]
     models = {}
     for index, (keys, data) in enumerate(unique_structures.items()):
         model_name = get_model_name(index)
@@ -53,6 +58,14 @@ def check_val_id(obj):
 
         obj.id = unique_id_str
     return obj
+
+def isUrl(url):
+    from urllib.parse import urlparse
+    result = urlparse(url)
+    if len(result.scheme) == 0:
+        return False
+    return True
+
 
 class MongoDB_Connect():
     def __init__(self):
@@ -88,10 +101,22 @@ class MongoDB_Connect():
         self.db[collection_name].bulk_write([DeleteMany({})])
     
     async def create_collection(self, content_file, session_key: str):
-        async with httpx.AsyncClient() as client:
-            response = await client.get("http://localhost:8000/proxy", params={"url": content_file})
-            response.encoding = 'utf-8-sig'
-            collection_data = json.loads(response.text)
+        collection_data = None
+        if isUrl(content_file):
+            async with httpx.AsyncClient() as client:
+                response = await client.get("http://localhost:8000/proxy", params={"url": content_file})
+                response.encoding = 'utf-8-sig'
+                collection_data = json.loads(response.text)
+        else:
+            #break document into smaller junks
+            toJsonString = {
+                "id" : str(uuid.uuid4()), 
+                "text" : content_file
+            }
+            text_data = json.dumps(toJsonString)
+            collection_data = json.loads(text_data)
+
+        collection_data = [collection_data]
         models = generate_models(collection_data)
         results = [callback_func(data, retrieve_model(data, models)) for data in collection_data]
         val_ids = [check_val_id(obj) for obj in results]

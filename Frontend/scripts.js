@@ -49,7 +49,7 @@ function includesAny(str, substrings) {
 
 
 function parseOutput(arg, convContainer){
-    // encapsulate css in css class
+    // // encapsulate css in css class
     const outputMessageContainer = document.createElement("div")
     outputMessageContainer.style.display = 'flex'
     outputMessageContainer.style.justifyContent = "flex-start"
@@ -71,6 +71,7 @@ function parseOutput(arg, convContainer){
         outputMessageContainer.appendChild(outputMessage)
         convContainer.appendChild(outputMessageContainer)
     }
+    return arg
 }
 
 async function updateFileInfo(files) {
@@ -82,7 +83,7 @@ async function updateFileInfo(files) {
     fileInfoArr.style.width = "100%"
     fileInfoArr.style.display = "flex"
     fileInfoArr.style.flexDirection = "row"
-    
+    fileInfoArr.id = "fileInfoArr"
     var file_result = ''
 
     if (files.length > 0 && fileInfoArr.children.length < 1) {
@@ -117,8 +118,10 @@ async function updateFileInfo(files) {
             }
 
             const jsonOutput = JSON.stringify({ content: pdfText }, null, 2);
-
-            console.log(jsonOutput)
+            const jsonObject = JSON.parse(jsonOutput);
+            //remove file
+            
+            return jsonObject
 
 
         }else{
@@ -126,13 +129,10 @@ async function updateFileInfo(files) {
         const reader = new FileReader();
             reader.onload = function() {
                 file_result = reader.result;
-                console.log(file_result)
+                return file_result
             };
             reader.readAsText(files[0]);
         }
-
-        
-        
 
     }
     else if(fileInfoArr.children.length == 1){
@@ -140,15 +140,11 @@ async function updateFileInfo(files) {
     }
 }
 
-/*
-Create session key, store and send to backend with the text submitted through the form 
-perform the POST request when button clicked 
-On the backend, store all the incoming information and send it back/print it
-On the frontend store the the recieved messages
-*/
-
-
 document.addEventListener('DOMContentLoaded', function() {
+
+    var fileAdded = false
+    var uploadedFile = null
+
     const submitButton = document.getElementById("queryButton")
     const queryInput = document.getElementById("queryInput")
 
@@ -159,7 +155,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('fileInput')
     
     fileInput.addEventListener('change', async (e) => {
-        await updateFileInfo(e.target.files);
+        uploadedFile = await updateFileInfo(e.target.files);
+        fileAdded = true
+
     });
 
     submitButton.addEventListener("click", (e) => {
@@ -167,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const key = isValidURL(queryInput.value) ? "contentFile" : "query"
         const payload = {
-            sessionKey: "lxt6md89-phase2" //generateUniqueSession(),   //CHANGE
+            sessionKey: "lxt6md89-phase" //generateUniqueSession(),   //CHANGE
         }
         //lxt6md89-phase2
         
@@ -207,8 +205,12 @@ document.addEventListener('DOMContentLoaded', function() {
             sentMessageContainer.appendChild(message)
             convContainer.appendChild(sentMessageContainer)
         }
-        //send warning that theres no prompt
-        fetch('http://localhost:8000', {
+        
+        if(fileAdded) {
+            payload["contentFile"] = uploadedFile["content"][0]
+        }
+        //else alert remove URL
+        fetch('http://localhost:8000/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -220,7 +222,13 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => console.error('Error:', error));
 
         queryInput.value = ""
-       
+        if(fileAdded){
+            fileInput.value = ""
+            const filesBar = document.getElementById("filesBar")
+            const fileInfoArr = document.getElementById("fileInfoArr")
+            filesBar.removeChild(fileInfoArr)
+            fileAdded = false
+        }
     })
 })
 

@@ -68,6 +68,7 @@ def root():
 
 @app.post("/")
 async def root(request: RequestModel):
+
     response_string = []
 
     async with lock:
@@ -102,7 +103,6 @@ async def root(request: RequestModel):
             agent_obj["tools"] = tools
             agent_obj["content_file_added"] = "true"
             response_string.append("exiting lock")
-            # return response_string
 
     async with lock:
         if request.system_prompt !=None:
