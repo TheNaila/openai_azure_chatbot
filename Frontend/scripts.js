@@ -159,15 +159,15 @@ document.addEventListener('DOMContentLoaded', function() {
         fileAdded = true
 
     });
-
+    
+    payloadSessionKey = generateUniqueSession()
     submitButton.addEventListener("click", (e) => {
         const containsPrompt = queryInput.value.toString().toLowerCase()
         
         const key = isValidURL(queryInput.value) ? "contentFile" : "query"
         const payload = {
-            sessionKey: "lxt6md89-phase" //generateUniqueSession(),   //CHANGE
+            sessionKey: payloadSessionKey,   
         }
-        //lxt6md89-phase2
         
         if (includesAny(containsPrompt, ["system prompt:", "system prompt :", " system prompt:", "systemprompt:"])){
             res = removeSystemPrompt(queryInput.value)
@@ -209,6 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if(fileAdded) {
             payload["contentFile"] = uploadedFile["content"][0]
         }
+        console.log(payload)
         //else alert remove URL
         fetch('http://localhost:8000/', {
             method: 'POST',

@@ -108,14 +108,23 @@ class MongoDB_Connect():
                 response.encoding = 'utf-8-sig'
                 collection_data = json.loads(response.text)
         else:
-            #break document into smaller junks
             toJsonString = {
                 "id" : str(uuid.uuid4()), 
                 "text" : content_file
             }
             text_data = json.dumps(toJsonString)
             collection_data = json.loads(text_data)
-
+            # #break document into smaller junks
+            # line_by_line = content_file.split(".")
+            # json_objs = []
+            # for line in line_by_line:
+            #     toJsonString = {
+            #         "id" : str(uuid.uuid4()), 
+            #         "text" : line
+            #     }
+            #     json_objs.append(toJsonString)
+            # text_data = json.dumps(json_objs)
+            # collection_data = json.loads(text_data)
         collection_data = [collection_data]
         models = generate_models(collection_data)
         results = [callback_func(data, retrieve_model(data, models)) for data in collection_data]
