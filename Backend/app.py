@@ -124,7 +124,7 @@ async def root(request: RequestModel):
             
             agent_executor = create_conversational_retrieval_agent(ai_client.openai_llm, tools, system_message = prompt, verbose=True)
             result = agent_executor({"input": query})
-            return result
+            return {"chat_response" : result}
        
     async with lock:
         if request.query != None and not "content_file_added" in agent_obj:
