@@ -104,7 +104,6 @@ class MongoDB_Connect():
         collection_data = None
         if isUrl(content_file):
             async with httpx.AsyncClient() as client:
-                content_file = json.dumps(content_file)
                 response = await client.get("http://localhost:8000/proxy", params={"url": content_file})
                 response.encoding = 'utf-8-sig'
                 collection_data = json.loads(response.text)
