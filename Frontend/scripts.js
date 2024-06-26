@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const key = isValidURL(queryInput.value) ? "contentFile" : "query"
         const payload = {
-            sessionKey: "lxubrq4o-3r2i2r6a6z",   
+            sessionKey: payloadSessionKey,   
         }
         
         if (includesAny(containsPrompt, ["system prompt:", "system prompt :", " system prompt:", "systemprompt:"])){
@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         console.log(payload)
         //else alert remove URL
-        fetch('http://localhost:8000/', {
+        fetch('http://localhost:8000', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

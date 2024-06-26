@@ -1,0 +1,16 @@
+# Start from the Nginx image
+FROM nginx:alpine
+
+# Remove any existing file in the default served directory
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy the content of your static files folder to the Nginx serving directory
+COPY . /usr/share/nginx/html
+
+
+
+# Expose port 80
+EXPOSE 80
+
+# Start Nginx when the container launches
+CMD ["nginx", "-g", "daemon off;"]
