@@ -61,9 +61,13 @@ function parseOutput(arg, convContainer){
     outputMessage.style.padding = "10px"
     outputMessage.style.margin = "10px"
     outputMessage.style.backgroundColor = "#FB8500"
-    
-    if("output" in arg){
-        outputMessage.innerText = arg["output"]
+
+    if(arg == null){
+        return
+    }
+    if("chat_response" in arg){
+        const res = arg["chat_response"]
+        outputMessage.innerText = res["output"]
         outputMessageContainer.appendChild(outputMessage)
         convContainer.appendChild(outputMessageContainer)
     }else if ("status" in arg){
